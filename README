@@ -290,4 +290,77 @@ ls /var/lib/docker/containers/
 // https://arkingc.github.io/2017/05/05/docker-filesystem-overlay/
 
   //     自己动手写AUFS
+// 创建一个AUFS文件系统，感受下如何使用AUFS和CoW实现文件管理
+mkdir aufs 
+cd !$
+mkdir mnt container-layer
+echo "I am container layer" > container-layer.txt
+mv container-layer.txt  container-layer
+mv !$ aufs
+cd !$
+cp image-layer1 image-layer2 -rf
+// 修改文件的名字与值 ...
+
+
+cat image-layer1/image-layer1.txt
+// I am image layer 1
+
+cat image-layer2/image-layer2.txt
+// I am image layer 2
+
+// 以此类推
+
+pwd
+// /root/aufs
+sudo mount -t aufs -o dirs=./container-layer:./image-layer4:./image-layer3:./image-layer2:./image-layer1 none ./mnt
+tree mnt
+
+mnt
+├── container-layer.txt
+├── image-layer1.txt
+├── image-layer2.txt
+├── image-layer3.txt
+└── image-layer4.txt
+
+ls  /sys/fs/aufs/
+// config  si_c2682246e4a009a4
+
+cat !$/si_c2682246e4a009a4/*
+cat /sys/fs/aufs//si_c2682246e4a009a4/*
+/root/aufs/container-layer=rw
+/root/aufs/image-layer4=ro
+/root/aufs/image-layer3=ro
+/root/aufs/image-layer2=ro
+/root/aufs/image-layer1=ro
+64
+65
+66
+67
+68
+/root/aufs/container-layer/.aufs.xino
+
+注意aufs的挂载权限文件 br0, br1, brid1,
+*/
+
+// 经过自己挂载, aufs的文件系统还是出来了,
+// 但是貌似现在用到的不多,所以先不研究docker改挂载方式的问题了
+
+// 更新layer1层
+echo -e "\nwrite to mnt's image-layer1.txt" >> ./mnt/image-layer4.txt
+
+cat mnt/image-layer4.txt 
+// I am image layer 4
+// write to mnt's image-layer1.txt
+
+cat image-layer4/image-layer4.txt 
+// I am image layer 4
+
+ls container-layer/
+// container-layer.txt  image-layer4.txt
+
+// 当尝试向mnt/image-layer4.txt文件进行写操作，系统首先在mnt目录下查找名为image-layer4.txt的文件，将其拷贝
+// 到read-write层的container-layer目录中，接着对container-layer目录中的image-layer4.txt文件进行写操作
+
   //   小结
+// 这样第二章就完成了,虽然因为docker的更新,aufs测试的很勉强,但同时了解到overlay2,也算不亏
+// 以上,谢谢观看
