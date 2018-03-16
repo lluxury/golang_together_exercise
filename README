@@ -190,7 +190,104 @@ go run main.go
 
   //   Union File System
   //     什么是Union File System
+// 把其他文件系统联合到一个联合挂载点的文件系统服务,
+// 当对这个虚拟后的联合文件系统进行写操作的时候，系统是真正写到了一个新的文件中
+
+// 写时复制 copy-on-write CoW (隐式共享) ,相同文件不写,修改资源写
+// 应用 Knoppix 光盘操作系统, 改动写在u盘上
+
   //     AUFS
+// Advanced multi-layered unification filesystem
+
   //     Docker是如何使用AUFS的
+// image layer和AUFS
+docker version
+// Version: 18.01.0-ce
+
+// image layers内容
+"LowerDir": "/var/lib/docker/overlay2/9b56f9814f5152ecf7c6e4812dc64e887459204ecd5df93d847556b2d364ab53/diff:\
+    /var/lib/docker/overlay2/42a1e6d19b155b03ffe6e330e2d49bdeb299b5781038753b2adde772ee8b821e/diff:\
+    /var/lib/docker/overlay2/57f44118efe3d0219980923034cc1fdca57fc6a8267ec88109980b3220e3bd55/diff"
+
+"MergedDir": "/var/lib/docker/overlay2/a31e107d1a79e49330477314bc02f7258f0192ff4bf4ee692456f716f1a8657c/merged",
+"UpperDir": "/var/lib/docker/overlay2/a31e107d1a79e49330477314bc02f7258f0192ff4bf4ee692456f716f1a8657c/diff",
+"WorkDir": "/var/lib/docker/overlay2/a31e107d1a79e49330477314bc02f7258f0192ff4bf4ee692456f716f1a8657c/work"
+
+// metadata如何堆栈这些layer
+ "RootFS": {
+     "Type": "layers",
+     "Layers": [
+         "sha256:3cbe18655eb617bf6a146dbd75a63f33c191bf8c7761bd6a8d68d53549af334b",
+         "sha256:84cc3d400b0d610447fbdea63436bad60fb8361493a32db380bd5c5a79f92ef4",
+         "sha256:ed58a6b8d8d6a4e2ecb4da7d1bf17ae8006dac65917c6a050109ef0a5d7199e6",
+         "sha256:5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef"
+     ]
+ },
+ "Metadata": {
+     "LastTagTime": "0001-01-01T00:00:00Z"
+ }
+
+ls "/var/lib/docker/overlay2/eab1b5c6a8c3b35deb236d994272e15766ec9be2b94c09811946794c2da86135/diff/mnt"
+// 镜像相关
+
+// layers 目录不存在了
+
+vi Dockerfile
+docker build -t changed-ubuntu .
+
+docker images
+docker history changed-ubuntu
+// 自Docker 1.10之后，一个镜像的image layers的image history数据都存储在一个文件中
+
+docker inspect 17ccef24c798
+"a31e107d1a79e49330477314bc02f7258f0192ff4bf4ee692456f716f1a8657c"
+// 原来的最上层 
+
+"3f23713e0eb85bc8c0468dfad60bdcbbe819168fb5d026bbe53b328ed9538891"
+// 新的层   /deff目录下有新增内容
+// 镜像的id和其位置的id没啥关系 由inspect获得的, 而容器的有很大的关系
+
+
+// container layer和AUFS
+// 对于一个容器，每一个image layer最多只需要拷贝一次。后续的改动都会在第一次拷贝的container layer上进行
+
+// 启动一个Container的时候，Docker会为其创建一个read-only的init layer，用来存储与这个容器内环境相关的内容；
+//    Docker还会为其创建一个read-write的layer用来执行所有写操作
+
+// Container layer的mount目录
+"/var/lib/docker/overlay2/8336c02191c18b1256f80f0a07b23ca079df7843d30ee3b55f39b9c7fa2554be/mnt"
+// mount目录 镜像里的WorkDir? 
+// Container的metadata和配置文件
+ls /var/lib/docker/containers
+
+// Container的read-write layer
+"/var/lib/docker/overlay2/8336c02191c18b1256f80f0a07b23ca079df7843d30ee3b55f39b9c7fa2554be/diff"
+// 新版本后,格式变了,目录应该还没变
+// 容器停止,容器仍然存在,直到docker rm
+
+docker run -dit changed-ubuntu bash
+docker ps -a
+
+ls /var/lib/docker/overlay2/ 
+// overlay2下面多了2个层
+
+"7f7d75956d9f4ad3aa1966cbd33ab8b92ebaf8852bc305233173045fa88bac5a"/
+// Docker为容器创建的read-write layer?
+
+"7f7d75956d9f4ad3aa1966cbd33ab8b92ebaf8852bc305233173045fa88bac5a-init"/
+// Docker为容器创建的read-only的init layer ?
+
+// layers 目录不存在, 用inspect可以查看依赖记录
+
+ls /var/lib/docker/containers/
+// 容器目录
+"caf63b21b3330ee93f270825a21622be4f0982b0554c0f69d24cefddde100508"
+// 和docker ps看的相同,容器的相关信息
+
+// 删除file1 在container的read-write层生成一个.wh.file1 未验证
+
+// 阿里的人也不靠谱啊, aufs直接没有了,我这用的是overlay2 扩展阅读
+// https://arkingc.github.io/2017/05/05/docker-filesystem-overlay/
+
   //     自己动手写AUFS
   //   小结
