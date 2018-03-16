@@ -5,4 +5,5 @@
 
 
 扫描下面的二维码关注个人的微信公众帐号, 会有一些发布更新
+
 ![http://hero.iamyann.com/blog_webchat.jpg](http://hero.iamyann.com/blog_webchat.jpg)

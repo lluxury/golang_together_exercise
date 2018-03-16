@@ -1,0 +1,61 @@
+  // 因为是系统级的操作,建议用root
+  
+  // 1 容器与开发语言
+  //   Docker
+  //   Go
+  //   小结
+  // 2 基础技术
+  //   Linux Namespace 介绍
+  //     概念
+  //     UTS Namespace
+  //     IPC Namespace
+  //     PID Namespace
+  //     Mount Namespace
+  //     User Namespace
+  //     Network Namespace
+  //   Linux Cgroups介绍
+  //   Union File System
+  //   小结
+  
+  // 2 基础技术
+  //   Linux Namespace 介绍
+  //     概念
+  //     UTS Namespace
+touch main.go
+vi !$
+go run main.go
+
+pstree -pl
+// 查看进程关系
+
+sshd(1297)───bash(1298)───su(1455)───   \
+  bash(1456)───go(1553)─┬─main(1565)─┬─sh(1568)───pstree(1571)
+
+echo $$   //1568
+
+readlink /proc/1565/ns/uts
+// uts:[4026531838]
+readlink /proc/1568/ns/uts
+// uts:[4026532430]
+
+hostname -b bird
+hostname  //bird
+
+// 启动新的ssh连接
+hostname  //ubuntu 
+
+  //     IPC Namespace
+  //     PID Namespace
+  //     Mount Namespace
+  //     User Namespace
+  //     Network Namespace
+  //   Linux Cgroups介绍
+  //     什么是Linux Cgroups
+  //     Docker是如何使用Cgroups的
+  //     用Go语言实现通过cgroup限制容器的资源
+  //   Union File System
+  //     什么是Union File System
+  //     AUFS
+  //     Docker是如何使用AUFS的
+  //     自己动手写AUFS
+  //   小结
