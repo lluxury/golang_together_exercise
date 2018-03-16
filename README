@@ -16,11 +16,18 @@
   //   Linux Cgroups介绍
   //   Union File System
   //   小结
-  
+  // 换1.7.1版本,位置:
+  cd /root/.gvm/pkgsets/go1.7.1/global/src/github.com/xianlubird/mydocker
+
   // 2 基础技术
   //   Linux Namespace 介绍
   //     概念
+clone()   //- 创建新进程。根据系统调用参数来判断哪种类型的namespace被创建，而且它们的子进程也会被包含到namespace中
+unshare() //- 将进程移出某个namespace
+setns()   //- 将进程加入到namesp中
+
   //     UTS Namespace
+// 主要隔离nodename 和domainname ,可以有自己的hostname
 touch main.go
 vi !$
 go run main.go
@@ -45,12 +52,130 @@ hostname  //bird
 hostname  //ubuntu 
 
   //     IPC Namespace
+// IPC Namespace 是用来隔离 System V IPC 和POSIX message queues ?
+vi main.go
+
+ipcs -q
+// 查看现有ipc message queue
+
+ipcmk -Q
+ipcs -q
+// 自建一个
+
+// 启动新的ssh连接
+/go/src/github.com/xianlubird/mydocker
+go run main.go 
+ipcs -q //没有值
+
+
   //     PID Namespace
+// 进程id
+vi main.go
+go run main.go
+echo $$  // 1
+
+// 查看另一个shell 为1780
+pstree -pl
+// bash(1708)---go(1768)-+-main(1780)-+-sh(1784)
+// ps和top看的是/proc下的内容
+
+
   //     Mount Namespace
+// mount namespace 是用来隔离各个进程看到的挂载点视图
+// 在不同namespace中的进程看到的文件系统层次不一样
+// 在mount namespace 中调用mount()和umount()仅仅只会影响当前namespace内的文件系统，
+//   对全局的文件系统是没有影响
+vi main.go
+
+go run main.go
+ls /proc
+
+mount -t proc proc /proc
+// 将/proc mount到我们自己的namesapce下面,类型为proc,名字proc
+ls /proc   //数量大大减少
+ps -ef
+
+
   //     User Namespace
+// User namespace 主要是隔离用户的用户组ID
+// 一个进程的User ID 和Group ID 在User namespace 内外经常是不同的
+// 从Linux kernel 3.8开始，非root进程也可以创建User namespace
+vi main.go
+id   //0
+go run main.go
+id   //5001
+// 看不懂的语句先放一边
+
   //     Network Namespace
+vi main.go
+ifconfig
+go run main.go
+ifconfig  //空
+
+
   //   Linux Cgroups介绍
   //     什么是Linux Cgroups
+// 通过Cgroups，可以方便的限制某个进程的资源占用，并且可以实时的监控进程的监控和统计信息
+cgroup      //一个cgroup包含一组进程
+subsystem   //资源控制的模块
+  blkio
+  cpu
+  cpuacct
+  cpuset
+  devices
+  freezer
+  memory
+  net_cls
+  net_prio
+  ns
+hierarchy  //把一组cgroup串成一个树状的结构, 可以继承
+
+apt-get install cgroup-bin
+lssubsys   //支持的subsystem
+
+  // kernel接口
+// 挂载一个hierarchy树
+mkdir cgroup-test
+sudo mount -t cgroup -o none,name=cgroup-test cgroup-test ./cgroup-test
+
+ls ./cgroup-test
+// cgroup.clone_children   cpuset的subsystem会读取这个配置文件
+// cgroup.procs            树中当前节点的cgroup中的进程组ID,根
+// cgroup.sane_behavior     
+// notify_on_release       cgroup最后一个进程退出的时候是否执行release_agent
+// release_agent           
+// tasks                   该cgroup下面的进程ID,进程ID写到tasks文件中，进程加入cgroup
+
+apt-get install tree
+cd cgroup-test
+sudo mkdir cgroup-1
+sudo mkdir cgroup-2
+tree
+// 继承父cgroup的属性,明白继承的意思了
+
+// 一个进程在一个Cgroups的hierarchy中只能存在在一个cgroup节点上
+echo $$   //2522
+sudo sh -c "echo $$" >> tasks 
+cat tasks
+cat /proc/2522/cgroup 
+// 之前创建hierarchy的时候，并没有关联到任何subsystem，没办法通过hierarchy中的cgroup限制进程的资源占用
+
+mount | grep memory
+cgroup on /sys/fs/cgroup/memory type cgroup (rw,nosuid,nodev,noexec,relatime,memory)
+// u14没有显示
+
+apt-get install stress
+cd /sys/fs/cgroup/memory
+
+// 新开一个shell,开启top命令
+stress --vm-bytes 200m --vm-keep -m 1   //不做限制启动一个占用内存的stress进程  20%
+
+sudo mkdir test-limit-memory && cd test-limit-memory    // 创建一个cgroup
+sudo sh -c "echo "100m" > memory.limit_in_bytes"        // 设置最大cgroup最大内存占用为100m
+sudo sh -c "echo $$ > tasks"                            // 将当前进程移动到这个cgroup中
+stress --vm-bytes 200m --vm-keep -m 1                   // 再次运行占用内存200m的的stress进程  10%
+
+
   //     Docker是如何使用Cgroups的
   //     用Go语言实现通过cgroup限制容器的资源
   //   Union File System
