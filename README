@@ -1,9 +1,33 @@
   // 因为是系统级的操作,建议用root
   
-  // 1 容器与开发语言
-  //   Docker
-  //   Go
-  //   小结
+    //Docker
+     // 简介
+       // 轻量
+       // 开放
+       // 安全
+     // 容器和虚拟机比较
+       // 轻量
+       // 无绑定
+     // 容器加速开发效率
+       // 快速环境
+       // 避免冲突
+       // 环境打包
+     // 利用容器合作开发
+       // docker hub
+     // 利用容器快速扩容
+     // 安装使用Docker
+       // deploying
+
+    //Go
+     // 描述
+     // 安装Go
+       // 1.71
+       // deploying
+     // 配置GOPATH
+gvm pkgset list
+
+
+
   // 2 基础技术
   //   Linux Namespace 介绍
   //     概念
@@ -17,7 +41,7 @@
   //   Union File System
   //   小结
   // 换1.7.1版本,位置:
-  cd /root/.gvm/pkgsets/go1.7.1/global/src/github.com/xianlubird/mydocker
+  // cd /root/.gvm/pkgsets/go1.7.1/global/src/github.com/xianlubird/mydocker
 
   // 2 基础技术
   //   Linux Namespace 介绍
@@ -25,6 +49,10 @@
 clone()   //- 创建新进程。根据系统调用参数来判断哪种类型的namespace被创建，而且它们的子进程也会被包含到namespace中
 unshare() //- 将进程移出某个namespace
 setns()   //- 将进程加入到namesp中
+
+
+
+
 
   //     UTS Namespace
 // 主要隔离nodename 和domainname ,可以有自己的hostname
@@ -50,6 +78,8 @@ hostname  //bird
 
 // 启动新的ssh连接
 hostname  //ubuntu 
+
+
 
   //     IPC Namespace
 // IPC Namespace 是用来隔离 System V IPC 和POSIX message queues ?
