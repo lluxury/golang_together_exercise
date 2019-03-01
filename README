@@ -1,5 +1,10 @@
   // 因为是系统级的操作,建议用root
-  
+
+// 4.2+的内核中userns的使用方式变化导致operation not permitted： #3
+// Centos 7.x中的内核不支持userns
+// 4.4内核运行后会导致/proc挂载不释放，导致后续命令报错 #8
+// Ubuntu 14.04.4之后的版本使用systemd去管理cgroup，会导致cgroup的限制失效
+
     //Docker
      // 简介
        // 轻量
@@ -81,6 +86,7 @@ hostname  //ubuntu
 
 
 
+
   //     IPC Namespace
 // IPC Namespace 是用来隔离 System V IPC 和POSIX message queues ?
 vi main.go
@@ -98,6 +104,9 @@ go run main.go
 ipcs -q //没有值
 
 
+
+
+
   //     PID Namespace
 // 进程id
 vi main.go
@@ -108,6 +117,8 @@ echo $$  // 1
 pstree -pl
 // bash(1708)---go(1768)-+-main(1780)-+-sh(1784)
 // ps和top看的是/proc下的内容
+
+
 
 
   //     Mount Namespace
@@ -124,6 +135,9 @@ mount -t proc proc /proc
 // 将/proc mount到我们自己的namesapce下面,类型为proc,名字proc
 ls /proc   //数量大大减少
 ps -ef
+
+
+
 
 
   //     User Namespace
