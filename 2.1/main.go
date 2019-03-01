@@ -14,7 +14,7 @@ func main() {
         // syscall.CLONE_NEWUTS 创建 UTS Namespace等
 
     }
-}
+    //}
     cmd.Stdin = os.Stdin
     cmd.Stdout = os.Stdout
     cmd.Stderr = os.Stderr
