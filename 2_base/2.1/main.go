@@ -10,7 +10,7 @@ import(
 func main() {
     cmd :=exec.Command("sh")    // 新进程初始命令
     cmd.SysProcAttr = &syscall.SysProcAttr{
-        Cloneflags: syscall.CLONE_NEWUTS | syscall.CLONE_NEWIPC | syscall.CLONE_NEWPID |syscall.CLONE_NEWNS |syscall.CLONE_NEWUSER,
+        Cloneflags: syscall.CLONE_NEWUTS | syscall.CLONE_NEWIPC | syscall.CLONE_NEWPID |syscall.CLONE_NEWNS |syscall.CLONE_NEWUSER |syscall.CLONE_NEWNET,
     }
     //cmd.SysProcAttr.Credential = &syscall.Credential{Uid: uint32(1), Gid: uint32(1)}
     // syscall.CLONE_NEWUTS 创建 UTS Namespace等
