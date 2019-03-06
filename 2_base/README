@@ -157,6 +157,10 @@ go run main.go
 ifconfig  //空
 
 
+
+
+
+
   //   Linux Cgroups介绍
   //     什么是Linux Cgroups
 // 通过Cgroups，可以方便的限制某个进程的资源占用，并且可以实时的监控进程的监控和统计信息
@@ -177,6 +181,10 @@ hierarchy  //把一组cgroup串成一个树状的结构, 可以继承
 apt-get install cgroup-bin
 lssubsys   //支持的subsystem
 
+
+
+
+
   // kernel接口
 // 挂载一个hierarchy树
 mkdir cgroup-test
@@ -189,6 +197,8 @@ ls ./cgroup-test
 // notify_on_release       cgroup最后一个进程退出的时候是否执行release_agent
 // release_agent           
 // tasks                   该cgroup下面的进程ID,进程ID写到tasks文件中，进程加入cgroup
+
+
 
 apt-get install tree
 cd cgroup-test
@@ -206,7 +216,8 @@ cat /proc/2522/cgroup
 
 mount | grep memory
 cgroup on /sys/fs/cgroup/memory type cgroup (rw,nosuid,nodev,noexec,relatime,memory)
-// u14没有显示
+// systemd on /sys/fs/cgroup/systemd type cgroup (rw,noexec,nosuid,nodev,none,name=systemd)
+// u14没有显示, 可能是版本差别
 
 apt-get install stress
 cd /sys/fs/cgroup/memory
@@ -218,6 +229,8 @@ sudo mkdir test-limit-memory && cd test-limit-memory    // 创建一个cgroup
 sudo sh -c "echo "100m" > memory.limit_in_bytes"        // 设置最大cgroup最大内存占用为100m
 sudo sh -c "echo $$ > tasks"                            // 将当前进程移动到这个cgroup中
 stress --vm-bytes 200m --vm-keep -m 1                   // 再次运行占用内存200m的的stress进程  10%
+
+
 
 
   //     Docker是如何使用Cgroups的
