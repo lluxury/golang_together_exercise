@@ -231,6 +231,13 @@ sudo sh -c "echo $$ > tasks"                            // 将当前进程移动
 stress --vm-bytes 200m --vm-keep -m 1                   // 再次运行占用内存200m的的stress进程  10%
 
 
+apt install docker.io
+source /etc/bash_completion.d/docker
+service docker restart
+
+sudo curl -sSL https://get.docker.com/ | sh;
+
+
 
 
   //     Docker是如何使用Cgroups的
@@ -240,10 +247,14 @@ cd /sys/fs/cgroup/memory/docker/2f79ceb402fd832f13c6f25623571c8b5b80ba1a08f95672
 cat memory.limit_in_bytes 
 cat memory.usage_in_bytes 
 
+
+
   //     用Go语言实现通过cgroup限制容器的资源
 vi main.go
 go run main.go
 // 新开一个shell, top , ls  testmemorylimit等
+
+
 
   //   Union File System
   //     什么是Union File System
