@@ -241,6 +241,8 @@ sudo curl -sSL https://get.docker.com/ | sh;
 
 
   //     Docker是如何使用Cgroups的
+
+
 // docker run -m 
 sudo docker run -itd -m 128m ubuntu
 cd /sys/fs/cgroup/memory/docker/2f79ceb402fd832f13c6f25623571c8b5b80ba1a08f95672f58e3006430cf2f5/
@@ -250,7 +252,24 @@ cat memory.usage_in_bytes
 
 
   //     用Go语言实现通过cgroup限制容器的资源
+// pid
+// 创建cgroup
+// 容器进程加入
+// 限制cgroup进程
+
+
 vi main.go
+
+os.Mkdir(path.Join(cgroupMemoryHierarchyMount, "testmemorylimit"), 0755)
+ioutil.WriteFile(path.Join(cgroupMemoryHierarchyMount, "testmemorylimit", "tasks"),   \
+    []byte(strconv.Itoa(cmd.Process.Pid)),0644)
+// 学习文件操作及变量转换的方法 
+
+cmd.Process.Pid
+// 进程的用法          
+
+//   /proc/self/exe ?
+
 go run main.go
 // 新开一个shell, top , ls  testmemorylimit等
 
@@ -264,42 +283,71 @@ go run main.go
 // 写时复制 copy-on-write CoW (隐式共享) ,相同文件不写,修改资源写
 // 应用 Knoppix 光盘操作系统, 改动写在u盘上
 
+
+
+
   //     AUFS
 // Advanced multi-layered unification filesystem
+
+
+
+
 
   //     Docker是如何使用AUFS的
 // image layer和AUFS
 docker version
 // Version: 18.01.0-ce
 
-// image layers内容
-"LowerDir": "/var/lib/docker/overlay2/9b56f9814f5152ecf7c6e4812dc64e887459204ecd5df93d847556b2d364ab53/diff:\
-    /var/lib/docker/overlay2/42a1e6d19b155b03ffe6e330e2d49bdeb299b5781038753b2adde772ee8b821e/diff:\
-    /var/lib/docker/overlay2/57f44118efe3d0219980923034cc1fdca57fc6a8267ec88109980b3220e3bd55/diff"
+    // 高版本文件系统结构
+    // image layers内容
+    "LowerDir": "/var/lib/docker/overlay2/9b56f9814f5152ecf7c6e4812dc64e887459204ecd5df93d847556b2d364ab53/diff:\
+        /var/lib/docker/overlay2/42a1e6d19b155b03ffe6e330e2d49bdeb299b5781038753b2adde772ee8b821e/diff:\
+        /var/lib/docker/overlay2/57f44118efe3d0219980923034cc1fdca57fc6a8267ec88109980b3220e3bd55/diff"
 
-"MergedDir": "/var/lib/docker/overlay2/a31e107d1a79e49330477314bc02f7258f0192ff4bf4ee692456f716f1a8657c/merged",
-"UpperDir": "/var/lib/docker/overlay2/a31e107d1a79e49330477314bc02f7258f0192ff4bf4ee692456f716f1a8657c/diff",
-"WorkDir": "/var/lib/docker/overlay2/a31e107d1a79e49330477314bc02f7258f0192ff4bf4ee692456f716f1a8657c/work"
+    "MergedDir": "/var/lib/docker/overlay2/a31e107d1a79e49330477314bc02f7258f0192ff4bf4ee692456f716f1a8657c/merged",
+    "UpperDir": "/var/lib/docker/overlay2/a31e107d1a79e49330477314bc02f7258f0192ff4bf4ee692456f716f1a8657c/diff",
+    "WorkDir": "/var/lib/docker/overlay2/a31e107d1a79e49330477314bc02f7258f0192ff4bf4ee692456f716f1a8657c/work"
 
-// metadata如何堆栈这些layer
- "RootFS": {
-     "Type": "layers",
-     "Layers": [
-         "sha256:3cbe18655eb617bf6a146dbd75a63f33c191bf8c7761bd6a8d68d53549af334b",
-         "sha256:84cc3d400b0d610447fbdea63436bad60fb8361493a32db380bd5c5a79f92ef4",
-         "sha256:ed58a6b8d8d6a4e2ecb4da7d1bf17ae8006dac65917c6a050109ef0a5d7199e6",
-         "sha256:5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef"
-     ]
- },
- "Metadata": {
-     "LastTagTime": "0001-01-01T00:00:00Z"
- }
+    // metadata如何堆栈这些layer
+     "RootFS": {
+         "Type": "layers",
+         "Layers": [
+             "sha256:3cbe18655eb617bf6a146dbd75a63f33c191bf8c7761bd6a8d68d53549af334b",
+             "sha256:84cc3d400b0d610447fbdea63436bad60fb8361493a32db380bd5c5a79f92ef4",
+             "sha256:ed58a6b8d8d6a4e2ecb4da7d1bf17ae8006dac65917c6a050109ef0a5d7199e6",
+             "sha256:5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef"
+         ]
+     },
+     "Metadata": {
+         "LastTagTime": "0001-01-01T00:00:00Z"
+     }
 
-ls "/var/lib/docker/overlay2/eab1b5c6a8c3b35deb236d994272e15766ec9be2b94c09811946794c2da86135/diff/mnt"
-// 镜像相关
+    ls "/var/lib/docker/overlay2/eab1b5c6a8c3b35deb236d994272e15766ec9be2b94c09811946794c2da86135/diff/mnt"
+    // 镜像相关
+    // layers 目录不存在了
 
-// layers 目录不存在了
 
+
+
+
+cd /var/lib/docker/aufs
+ls
+// diff  layers  mnt 全是空的
+
+docker pull ubuntu:15.04
+// 拉镜像,有4层,在下面目录中可以找到对应信息
+
+ls diff
+ls mnt
+cat layers/ID 
+4913eece27c087d06635d32b98c50464b2f1d17bba86be7d4616738f1cfef0af
+d09407f461e5b05264de993af2d9d1d1cdfc9376906375df71f94b07d91fef2d
+c9a73777916c475bed83fce9821c785e14c7178008d28d54e7af65377bcfaad0
+
+// 自Docker 1.10之后，diff目录下存储的镜像layer文件夹不再与镜像id相同
+
+
+cd /go/src/github.com/lluxury/golang_together_exercise/2_base/2.3/changed-ubuntu
 vi Dockerfile
 docker build -t changed-ubuntu .
 
@@ -307,13 +355,19 @@ docker images
 docker history changed-ubuntu
 // 自Docker 1.10之后，一个镜像的image layers的image history数据都存储在一个文件中
 
-docker inspect 17ccef24c798
-"a31e107d1a79e49330477314bc02f7258f0192ff4bf4ee692456f716f1a8657c"
-// 原来的最上层 
+    // 新版本信息
+    docker inspect 17ccef24c798
+    "a31e107d1a79e49330477314bc02f7258f0192ff4bf4ee692456f716f1a8657c"
+    // 原来的最上层 
 
-"3f23713e0eb85bc8c0468dfad60bdcbbe819168fb5d026bbe53b328ed9538891"
-// 新的层   /deff目录下有新增内容
-// 镜像的id和其位置的id没啥关系 由inspect获得的, 而容器的有很大的关系
+    "3f23713e0eb85bc8c0468dfad60bdcbbe819168fb5d026bbe53b328ed9538891"
+    // 新的层   /deff目录下有新增内容
+    // 镜像的id和其位置的id没啥关系 由inspect获得的, 而容器的有很大的关系
+
+
+
+
+
 
 
 // container layer和AUFS
@@ -322,40 +376,95 @@ docker inspect 17ccef24c798
 // 启动一个Container的时候，Docker会为其创建一个read-only的init layer，用来存储与这个容器内环境相关的内容；
 //    Docker还会为其创建一个read-write的layer用来执行所有写操作
 
-// Container layer的mount目录
-"/var/lib/docker/overlay2/8336c02191c18b1256f80f0a07b23ca079df7843d30ee3b55f39b9c7fa2554be/mnt"
-// mount目录 镜像里的WorkDir? 
-// Container的metadata和配置文件
-ls /var/lib/docker/containers
 
-// Container的read-write layer
-"/var/lib/docker/overlay2/8336c02191c18b1256f80f0a07b23ca079df7843d30ee3b55f39b9c7fa2554be/diff"
-// 新版本后,格式变了,目录应该还没变
-// 容器停止,容器仍然存在,直到docker rm
+// 先确认没有容器在运行
+docker ps -a
+ls /var/lib/docker/containers/
+ls /sys/fs/aufs/
+
+
 
 docker run -dit changed-ubuntu bash
 docker ps -a
 
-ls /var/lib/docker/overlay2/ 
-// overlay2下面多了2个层
 
-"7f7d75956d9f4ad3aa1966cbd33ab8b92ebaf8852bc305233173045fa88bac5a"/
-// Docker为容器创建的read-write layer?
 
-"7f7d75956d9f4ad3aa1966cbd33ab8b92ebaf8852bc305233173045fa88bac5a-init"/
-// Docker为容器创建的read-only的init layer ?
+cd /var/lib/docker/aufs
+ls diff
+// 多了两个文件夹, 带有 -init的目录是 read-only layer, 另一个是读写
 
-// layers 目录不存在, 用inspect可以查看依赖记录
+ll -alt mnt
+// 内容相同
 
-ls /var/lib/docker/containers/
-// 容器目录
-"caf63b21b3330ee93f270825a21622be4f0982b0554c0f69d24cefddde100508"
-// 和docker ps看的相同,容器的相关信息
+cat layers/ID-init
+// layers多了2个同名文件,内容是layer依赖
 
-// 删除file1 在container的read-write层生成一个.wh.file1 未验证
 
-// 阿里的人也不靠谱啊, aufs直接没有了,我这用的是overlay2 扩展阅读
-// https://arkingc.github.io/2017/05/05/docker-filesystem-overlay/
+ll /var/lib/docker/containers/ID/
+// 存放容器 metadata 和config 文件
+
+ls /sys/fs/aufs/
+// config  si_ead33945636649b3
+// 系统 AUFS 的mount情况
+
+
+cat /sys/fs/aufs/si_ead33945636649b3/*
+/var/lib/docker/aufs/diff/23225ba6dba16b8f85bbd1d08abc758759b5aa3346c4ba64404eaff00b7c4ae0=rw
+/var/lib/docker/aufs/diff/23225ba6dba16b8f85bbd1d08abc758759b5aa3346c4ba64404eaff00b7c4ae0-init=ro+wh
+/var/lib/docker/aufs/diff/e17093acd26fe10ac403f373300d4d4137fe38b0614e3b34c7761235c933a8ab=ro+wh
+/var/lib/docker/aufs/diff/314a1f0785309b773392e11208cb29ec370cf416eb3c828c7e45ff66b0fb0e20=ro+wh
+/var/lib/docker/aufs/diff/4913eece27c087d06635d32b98c50464b2f1d17bba86be7d4616738f1cfef0af=ro+wh
+/var/lib/docker/aufs/diff/d09407f461e5b05264de993af2d9d1d1cdfc9376906375df71f94b07d91fef2d=ro+wh
+/var/lib/docker/aufs/diff/c9a73777916c475bed83fce9821c785e14c7178008d28d54e7af65377bcfaad0=ro+wh
+*/
+// 清楚看明白容器layer权限
+
+
+// 文件删除
+ls -a /var/lib/docker/aufs/diff/ID/tmp/
+ .wh.newfile
+
+
+
+    // 新版本信息
+    // Container layer的mount目录
+    "/var/lib/docker/overlay2/8336c02191c18b1256f80f0a07b23ca079df7843d30ee3b55f39b9c7fa2554be/mnt"
+    // mount目录 镜像里的WorkDir? 
+    // Container的metadata和配置文件
+    ls /var/lib/docker/containers
+
+    // Container的read-write layer
+    "/var/lib/docker/overlay2/8336c02191c18b1256f80f0a07b23ca079df7843d30ee3b55f39b9c7fa2554be/diff"
+    // 新版本后,格式变了,目录应该还没变
+    // 容器停止,容器仍然存在,直到docker rm
+
+    ls /var/lib/docker/overlay2/ 
+    // overlay2下面多了2个层
+
+    "7f7d75956d9f4ad3aa1966cbd33ab8b92ebaf8852bc305233173045fa88bac5a"/
+    // Docker为容器创建的read-write layer?
+
+    "7f7d75956d9f4ad3aa1966cbd33ab8b92ebaf8852bc305233173045fa88bac5a-init"/
+    // Docker为容器创建的read-only的init layer ?
+
+    // layers 目录不存在, 用inspect可以查看依赖记录
+
+    ls /var/lib/docker/containers/
+    // 容器目录
+    "caf63b21b3330ee93f270825a21622be4f0982b0554c0f69d24cefddde100508"
+    // 和docker ps看的相同,容器的相关信息
+
+    // 删除file1 在container的read-write层生成一个.wh.file1 未验证
+
+    // https://arkingc.github.io/2017/05/05/docker-filesystem-overlay/
+
+
+
+
+
+
+
+
 
   //     自己动手写AUFS
 // 创建一个AUFS文件系统，感受下如何使用AUFS和CoW实现文件管理
@@ -364,16 +473,28 @@ cd !$
 mkdir mnt container-layer
 echo "I am container layer" > container-layer.txt
 mv container-layer.txt  container-layer
-mv !$ aufs
-cd !$
-cp image-layer1 image-layer2 -rf
+  mv !$ aufs
+  cd !$
+  cp image-layer1 image-layer2 -rf
 // 修改文件的名字与值 ...
 
 
-cat image-layer1/image-layer1.txt
+├── container-layer
+│   └── container-layer.txt
+├── image-layer1
+│   └── imager-layer1.txt
+├── image-layer2
+│   └── imager-layer2.txt
+├── image-layer3
+│   └── imager-layer3.txt
+├── image-layer4
+│   └── imager-layer4.txt
+└── mnt
+
+cat image-layer1/imager-layer1.txt
 // I am image layer 1
 
-cat image-layer2/image-layer2.txt
+cat image-layer2/imager-layer2.txt
 // I am image layer 2
 
 // 以此类推
@@ -414,7 +535,7 @@ cat /sys/fs/aufs//si_c2682246e4a009a4/*
 // 但是貌似现在用到的不多,所以先不研究docker改挂载方式的问题了
 
 // 更新layer1层
-echo -e "\nwrite to mnt's image-layer1.txt" >> ./mnt/image-layer4.txt
+echo -e "\nwrite to mnt's image-layer1.txt" >> ./mnt/imager-layer4.txt
 
 cat mnt/image-layer4.txt 
 // I am image layer 4
