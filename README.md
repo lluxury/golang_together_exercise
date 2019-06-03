@@ -4,6 +4,14 @@
 之前一直放在自己的私有git里, 现在放出来并继续更新
 
 
+
+第一章
+第一章内容主要是简单介绍及安装演示docker和go, 比较简单,也没有练习代码.
+
+
+
+
+
 扫描下面的二维码关注个人的微信公众帐号, 会有一些发布更新
 
 ![http://hero.iamyann.com/blog_webchat.jpg](http://hero.iamyann.com/blog_webchat.jpg)

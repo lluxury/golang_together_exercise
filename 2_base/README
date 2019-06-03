@@ -551,5 +551,7 @@ ls container-layer/
 // 到read-write层的container-layer目录中，接着对container-layer目录中的image-layer4.txt文件进行写操作
 
   //   小结
-// 这样第二章就完成了,虽然因为docker的更新,aufs测试的很勉强,但同时了解到overlay2,也算不亏
-// 以上,谢谢观看
+    // 这样第二章就完成了,虽然因为docker的更新,aufs测试的很勉强,但同时了解到overlay2,也算不亏
+    // 以上,谢谢观看
+// 测试完成,环境准备很重要, 目录位置,os版本
+

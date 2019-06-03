@@ -1,0 +1,88 @@
+// 构造实现run命令版本的容器
+//   Linux proc 文件系统介绍
+//     /proc
+//     相关介绍
+/proc/N                 PID 为N 的进程信息
+/proc/N/cmdline         进程启动命令                     
+/proc/N/cwd             链接到进程当前工作目录        
+/proc/N/environ         进程环境变量            
+/proc/N/exe             链接到进程的执行命令文件        
+/proc/N/fd              进程相关的所有文件描述符       
+/proc/N/maps            进程相关的内存映射信息         
+/proc/N/mem             进程持有的内存,不可读        
+/proc/N/root            链接到进程的根目录         
+/proc/N/stat            进程的状态         
+/proc/N/statm           进程使用的内存状态          
+/proc/N/status          进程状态信息           
+
+/proc/self              链接到当前正在运行的进程       
+
+//   实现 run 命令
+//     结构
+// 增加容器资源限制
+//   定义Cgroups的数据结构
+//   在启动容器时增加资源限制的配置
+// 增加管道及环境变量识别
+
+
+tree
+
+├── container
+│   ├── container_process.go
+│   └── init.go
+├── main_command.go
+├── main.go
+├── run.go
+└── vendor
+
+// 以下文件仅做笔记参考,项目文件涉及包调用,需要使用 xianlubird 2.1
+
+vi main.go
+// 定义app变量,cli.NewApp() 函数
+// app是结构体,替换Name,Usage属性
+// 定义2个命令,使用cli.Command结构体
+// 命令之前初始化日志 *cli.Context
+
+vi main_command.go
+// 定义变量运行参数 runCommand
+// 赋值name,Flags和Action字段,Run(tty, cmd)
+// 判断参数,获取命令,调用run 函数
+
+// 定义变量初始化参数 initCommand
+// 赋值name,Action字段,使用cli.Context
+
+vi run.go
+// Run()
+// 定义parent, 运行,等待,退出
+
+
+vi container_process.go
+// NewParentProcess()
+// args, cmd
+// cmd.SysProcAttr 克隆进程
+// tty处理
+
+vi init.go
+// RunContainerInitProcess()
+// 定义变量 defaultMountFlags
+// syscall.Mount() 不明
+// syscall.Exec()
+
+
+
+// 在项目目录编译
+go build .
+./mydocker run -ti /bin/sh
+  ps -ef
+
+ls
+// container  Godeps  main_command.go  main.go  mydocker  network  README.md  run.go  vendor
+
+// 对比docker 
+docker run -ti ubuntu:15.04 /bin/sh
+  ps -ef
+
+
+// 测试非常驻命令,执行后退出
+./mydocker run -ti /bin/ls
+
