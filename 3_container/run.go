@@ -1,14 +1,14 @@
 package main
 
 import (
-	"github.com/xianlubird/mydocker/container"
 	log "github.com/Sirupsen/logrus"
+	"github.com/xianlubird/mydocker/container"
 	"os"
 )
 
-func Run(tty bool, command string)  {
+func Run(tty bool, command string) {
 	parent := container.NewParentProcess(tty, command)
-	if err := parent.Start(); err !=nil{
+	if err := parent.Start(); err != nil {
 		log.Error(err)
 	}
 	parent.Wait()

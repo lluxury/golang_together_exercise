@@ -249,6 +249,8 @@ cd /sys/fs/cgroup/memory/docker/2f79ceb402fd832f13c6f25623571c8b5b80ba1a08f95672
 cat memory.limit_in_bytes 
 cat memory.usage_in_bytes 
 
+// 07-04 17:09  
+
 
 
   //     用Go语言实现通过cgroup限制容器的资源
