@@ -9,20 +9,6 @@
 ​    概念
 ​      UID 级别隔离
 
-#####   系统调用
-
-​    clone()创建**新进程**
-​    unshare() 进程移出 Namespace
-​    setns() 进程加入 Namespace
-
-unshare 命令：
-
-```bash
-unshare -h
-unshare -u /bin/sh  # 进入了新的名字空间 --uts
- # 类似 syscall.CLONE_NEWUTS
-```
-
 
 
 ###### 名字空间梳理：
