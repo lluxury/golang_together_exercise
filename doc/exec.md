@@ -1,0 +1,30 @@
+调用 linux 名字空间
+
+```go
+func main() {
+	cmd := exec.Command("sh") // 增加新进程
+	cmd.SysProcAttr = &syscall.SysProcAttr{
+		Cloneflags: syscall.CLONE_NEWUTS | syscall.CLONE_NEWIPC | syscall.CLONE_NEWPID | syscall.CLONE_NEWNS | syscall.CLONE_NEWUSER | syscall.CLONE_NEWNET,
+	}
+	//cmd.SysProcAttr.Credential = &syscall.Credential{Uid: uint32(1), Gid: uint32(1)}
+	// syscall.CLONE_NEWUTS 创建 UTS Namespace等
+
+      // Stdin io.Reader  
+	cmd.Stdin = os.Stdin	// 程序的io 管道重定向到标准输入输出
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+    // 运行命令
+	if err := cmd.Run(); err != nil {
+		log.Fatal(err)
+	}
+	os.Exit(-1)
+}
+
+```
+
+exec 是个包， Command 是个函数，传入名字和参数，返回 结构体 Cmd 的指针
+
+Cmd 是个结构体，包含了很多方法
+
+SysProcAttr 是 Cmd 的内容之一，涉及 os.ProcAttr
