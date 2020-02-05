@@ -16,25 +16,31 @@ const cgroupMemoryHierarchyMount = "/sys/fs/cgroup/memory"
 
 func main() {
 	if os.Args[0] == "/proc/self/exe" {
-		//容器进程
+		// 判断文件路径
 
 		fmt.Printf("current pid %d", syscall.Getpid())
 		fmt.Println()
 		cmd := exec.Command("sh", "-c", `stress --vm-bytes 200m --vm-keep -m 1`)
+
 		cmd.SysProcAttr = &syscall.SysProcAttr{}
 		cmd.Stdin = os.Stdin
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
+
 		if err := cmd.Run(); err != nil {
 			fmt.Println(err)
 			os.Exit(1)
-		}
+
 	}
 	// cmd :exec.Command("/proc/self/exe")
 	cmd := exec.Command("/proc/self/exe")
+	// 指定被 fork 出来的新进程内的初始命令
+
 	cmd.SysProcAttr = &syscall.SysProcAttr{
 		Cloneflags: syscall.CLONE_NEWUTS | syscall.CLONE_NEWPID | syscall.CLONE_NEWNS,
 	}
+	// SysProcAttr 系统属性，调用生成新的名字空间，同前一节内容
+
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -47,7 +53,7 @@ func main() {
 		fmt.Printf("%v", cmd.Process.Pid)
 
 		// 在系统默认创建挂载了memory subsystem的Hierarchy上创建cgroup
-		os.Mkdir(path.Join(cgroupMemoryHierarchyMount, "testmemorylimit"), 0755)
+		os.Mkdir(path.Join(./ , "testmemorylimit"), 0755)
 
 		// 将容器进程加入到这个cgroup中
 		ioutil.WriteFile(path.Join(cgroupMemoryHierarchyMount, "testmemorylimit", "tasks"), []byte(strconv.Itoa(cmd.Process.Pid)), 0644)

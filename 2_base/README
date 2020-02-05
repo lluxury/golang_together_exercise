@@ -259,8 +259,12 @@ cat memory.usage_in_bytes
 // 容器进程加入
 // 限制cgroup进程
 
-
+// 在上一章 Namespace 的基础上, 再加上cgroup限制
 vi main.go
+
+// 导入包, 定义常量
+
+
 
 os.Mkdir(path.Join(cgroupMemoryHierarchyMount, "testmemorylimit"), 0755)
 ioutil.WriteFile(path.Join(cgroupMemoryHierarchyMount, "testmemorylimit", "tasks"),   \
