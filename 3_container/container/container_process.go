@@ -17,7 +17,7 @@ func NewParentProcess(tty bool, command string) *exec.Cmd{
 		syscall.CLONE_NEWPID |
 		syscall.CLONE_NEWNS  |
 		syscall.CLONE_NEWNET |
-		syscall.CLONE_IPC,
+		syscall.CLONE_NEWIPC,
 	}
 	if tty {
 		cmd.Stdin = os.Stdin

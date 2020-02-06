@@ -26,7 +26,7 @@ var runCommand = cli.Command{
 		cli.BoolFlag{
 			Name:  "ti",
 			Usage: "enable tty",
-		}
+		},
 	},
 }
 
@@ -34,7 +34,8 @@ var runCommand = cli.Command{
 var initCommand = cli.Command{
 	Name:   "init",
 	Usage:  "Init container process run user's process in container. Do not call it outside",
-	Action:  func(context cli.Context) error{
+	// Action:  func(context cli.Context) error{
+        Action: func(context *cli.Context) error{
 		log.Infof("init come on")
 		cmd := context.Args().Get(0)
 		log.Infof("command %s", cmd)
