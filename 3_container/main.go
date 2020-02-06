@@ -3,7 +3,6 @@ package main
 import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/urfave/cli"
-	"log"
 	"os"
 )
 
@@ -12,6 +11,7 @@ const usage = `mydocker is a simple container runtime implementation.
 						   Enjoy it, just for fun.`
 
 func main() {
+
 	app := cli.NewApp()
 	app.Name = "mydocker"
 	app.Usage = usage
@@ -22,9 +22,7 @@ func main() {
 	}
 
 	app.Before = func(context *cli.Context) error {
-		// Log as JSON instead of the default ASCII formatter.
 		log.SetFormatter(&log.JSONFormatter{})
-
 		log.SetOutput(os.Stdout)
 		return nil
 	}
