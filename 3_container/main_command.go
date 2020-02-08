@@ -26,7 +26,10 @@ var runCommand = cli.Command{
 		tty := context.Bool("ti")
 		resConf := &subsystems.ResourceConfig{
 			//MemoryLimit: "m", 重要 bug，直接导致功能失效
+
 			MemoryLimit: context.String("m"),
+			CpuShare:    context.String("cpuset"),
+			CpuSet:      context.String("cpushare"),
 		}
 
 		Run(tty, cmdArray, resConf)
@@ -40,6 +43,14 @@ var runCommand = cli.Command{
 		cli.StringFlag{
 			Name: "m",
 			Usage: "memory limit",
+		},
+		cli.StringFlag{
+			Name: "cpushare",
+			Usage: "cpushare limit",
+		},
+		cli.StringFlag{
+			Name: "cpuset",
+			Usage: "cpuset limit",
 		},
 	},
 }
