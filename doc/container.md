@@ -146,39 +146,135 @@ func RunContainerInitProcess(command string, args []string) error {
 ​      初始化, /proc, 执行命令
 ​      容器开始运行
 
-#####     mydocker
+mydocker
 
-​      container
-​        container_process.go
-​          NewParentProcess()
-​          args, cmd
-​          cmd.SysProcAttr 克隆进程
-​          tty处理
-​        init.go
-​          RunContainerInitProcess()
-​          定义变量 defaultMountFlags
-​          syscall.Mount() 不明
-​          syscall.Exec()
-​      main_command.go
-​        定义变量运行参数 runCommand
-​        赋值name,Flags和Action字段,Run(tty, cmd)
-​        判断参数,获取命令,调用run 函数
-​        定义变量初始化参数 initCommand
-​        赋值name,Action字段,使用cli.Context
-​        获取传递来的command参数? 容器初始化
-​      main.go
-​        定义app变量,cli.NewApp() 函数
-​        app是结构体,替换Name,Usage属性
-​        定义2个命令,使用cli.Command结构体
-​        命令之前初始化日志 *cli.Context
-​      run.go
-​        Run()
-​        定义parent, 运行,等待,退出
-​    测试
-​      go build .
-​      ./mydocker run -ti /bin/sh
+######     测试
+
+```bash
+go build .
+./3_container run -ti /bin/sh 
+ps -ef    
+./3_container run -ti /bin/ls
+```
+
+
 
 ####   增加容器资源限制
+
+file_map_3.2
+
+##### 定义结构
+
+###### subsystem.go
+
+  tys ResourceConfig  
+
+传递资源限制的结构，内存，cpu时间片，cpu核心
+
+
+
+tyi Subsystem Subsystem
+
+接口，定义4个处理方法，cgroup 抽象成 path
+
+
+
+  var SubsystemsIns
+
+初始化实例创建资源限制处理链数组
+
+三个数组都还没有
+
+
+
+###### memory.go
+
+定义内容实现方法
+
+  tyi MemorySubSystem
+  Set
+  Remove
+  Apply
+  Name
+
+
+
+```go
+func (s *MemorySubSystem) Set(cgroupPath string, res *ResourceConfig) error {
+	if subsysCgroupPath, err := GetCgroupPath(s.Name(), cgroupPath, true); err == nil {
+		if res.MemoryLimit !="" {
+			if err := ioutil.WriteFile(path.Join(subsysCgroupPath, "memory.limit_in_bytes"),[]byte(res.MemoryLimit),0644); err != nil {
+				return fmt.Errorf("set cgroup memory fail %v",err)
+			}
+		}
+		return nil
+	} else {
+		return err
+	}
+}
+```
+
+判断路径，判断内容，判错设置，错误返回
+
+###### utils.go
+
+  **FindCgroupMountpoint( )**
+
+打开文件，搜索内容
+
+```bash
+cat /proc/self/mountinfo
+# rw,memory ，挂载的 subsystem 是memory
+# 在 memory 中增加限制可以限制内存
+```
+
+搜索代码块
+
+```go
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan(){
+		txt := scanner.Text()
+		fields := strings.Split(txt, " ")
+		for _, opt := range strings.Split(fields[len(fields)-1], ",") {
+			if opt == subsystem {
+				return fields[4]
+                //返回 /sys/fs/cgroup/memory
+			}
+		}
+	}
+```
+
+  定义bufio搜索，定义Text属性，定义字段，寻找匹配，返回另一部分 
+
+
+
+**GetCgroupPath( )**
+
+返回 Cgroup 的绝对地址
+
+获取挂载点，获取状态，没报错也没有不存在，则返回回值
+
+如果不存在就创建并返回，创建失败就报错
+
+错过获取状态失败就报错
+
+
+
+注意体会三层判断，和三级变量指定
+
+
+
+###### cgroup_manager.go
+
+管理 Cgroup 与容器建立关系
+
+  tys CgroupManager
+  NewCgroupManager( )
+  Apply
+  Set
+  Destroy
+
+
 
 #####     流程
 
