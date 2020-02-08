@@ -163,7 +163,9 @@ ps -ef
 
 file_map_3.2
 
-##### 定义结构
+##### 定义Cgroups的数据结构
+
+
 
 ###### subsystem.go
 
@@ -196,6 +198,14 @@ tyi Subsystem Subsystem
   Remove
   Apply
   Name
+
+
+
+###### cpu.go 
+
+
+
+###### cpuset.go
 
 
 
@@ -248,6 +258,8 @@ cat /proc/self/mountinfo
 
 
 
+##### 在启动容器时增加资源限制的配置
+
 **GetCgroupPath( )**
 
 返回 Cgroup 的绝对地址
@@ -276,7 +288,21 @@ cat /proc/self/mountinfo
 
 
 
-**main_command.go** 
+###### run.go 新增
+
+  Run()
+    tty
+    comArray
+    res
+  cgroupManager.Set()
+  cgroupManager.Apply()
+  sendInitCommand()
+    comArray
+    writePipe
+
+
+
+###### main_command.go 
 
 Action 有了较大的变化
 
@@ -326,12 +352,6 @@ NewPipe()	新增函数
 
 
 
-**cpu.go** 
-
-**cpuset.go**
-
-######  
-
 #####     流程
 
 ​      创建资源限制容器
@@ -341,10 +361,71 @@ NewPipe()	新增函数
 ​      容器进程进入 cgroup
 ​      完成资源限制
 
-#####     定义Cgroups的数据结构
 
-​    在启动容器时增加资源限制的配置
-​    测试
+
+##### 测试
+
+测试可以发现一些错误，还是有局限性，只能在环境上使用
+
+代码测试
+
+###### memory_test.go
+
+TestMemoryCgroup( )
+
+memSubSys{}
+resConfig {MemoryLimit}
+testCgroup 
+
+定义好结构体变量，Cgroup 变量
+
+测试以下方法和函数
+
+Set
+
+FindCgroupMountpoint
+
+Apply
+
+Remove
+
+```go
+if err := memSubSys.Set(testCgroup, &resConfig); err != nil {
+   t.Fatalf("cgroup fail %v", err)
+}
+stat, _ := os.Stat(path.Join(FindCgroupMountpoint("memory"),testCgroup))
+t.Logf("cgroup stats: %+v", stat)
+```
+
+
+
+###### utils_test.go
+
+TestFindCgroupMountpoint( )
+
+```go
+t.Logf("cpu subsystem mount point %v\n",FindCgroupMountpoint("cpu"))
+```
+
+ 直接调用 FindCgroupMountpoint 把挂载点打印出来
+
+
+
+###### 命令测试
+
+```bash
+cd 3_container/cgroups/subsystems
+go test -v
+
+./3_container run -ti -m 100m stress \
+	--vm-bytes 200m --vm-keep -m 1
+
+./3_container run -ti -cpushare 512 stress --vm-bytes 200m --vm-keep -m 1
+```
+
+
+
+
 
 ####   增加管道及环境变量识别
 
