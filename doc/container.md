@@ -276,6 +276,58 @@ cat /proc/self/mountinfo
 
 
 
+**main_command.go** 
+
+Action 有了较大的变化
+
+```go
+	Action: func(context *cli.Context) error {
+		if len(context.Args()) < 1 {
+			return fmt.Errorf("Missing container command")
+		}
+		var cmdArray []string
+		for _, arg := range context.Args() {
+			cmdArray = append(cmdArray, arg)
+		}
+		tty := context.Bool("ti")
+		resConf := &subsystems.ResourceConfig{
+		   //MemoryLimit: "m", 重要 bug，直接导致功能失效
+			MemoryLimit: context.String("m"),
+		}
+
+		Run(tty, cmdArray, resConf)
+		return nil
+	},
+```
+
+Flags  标记增加
+
+initCommand 	命令的调用改变
+
+
+
+###### container/init.go
+
+RunContainerInitProcess()   逻辑改变，函数重写
+
+```go
+ syscall.Exec(path, cmdArray[0:], os.Environ());
+```
+
+readUserCommand()	新增 read 函数
+
+
+
+###### container_process.go
+
+NewParentProcess()  修改了参数个数，新增了功能
+
+NewPipe()	新增函数
+
+
+
+######  
+
 #####     流程
 
 ​      创建资源限制容器
