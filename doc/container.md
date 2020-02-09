@@ -300,6 +300,8 @@ cat /proc/self/mountinfo
     comArray
     writePipe
 
+下节详细记录
+
 
 
 ###### main_command.go 
@@ -329,26 +331,6 @@ Action 有了较大的变化
 Flags  标记增加
 
 initCommand 	命令的调用改变
-
-
-
-###### container/init.go
-
-RunContainerInitProcess()   逻辑改变，函数重写
-
-```go
- syscall.Exec(path, cmdArray[0:], os.Environ());
-```
-
-readUserCommand()	新增 read 函数
-
-
-
-###### container_process.go
-
-NewParentProcess()  修改了参数个数，新增了功能
-
-NewPipe()	新增函数
 
 
 
@@ -429,9 +411,7 @@ go test -v
 
 ####   增加管道及环境变量识别
 
-​    管道识别
-
-######       管道
+**管道**
 
 ​        进程间通信
 ​        IPC 的一种
@@ -441,13 +421,123 @@ go test -v
 ​        管道有4KB缓存
 ​    环境变量识别
 
-​    代码
 
-######       原因
+
+**原因**
 
 ​        特殊字符不方便传递参数
 ​        有长度限制
 ​        使用匿名管道
+
+
+
+​    **代码**
+
+###### container_process.go 改
+
+NewParentProcess()  修改了参数个数，新增了功能
+
+NewPipe()	pipe 方法生成匿名管道
+
+```go
+readPipe, writePipe , err := NewPipe()
+cmd.ExtraFiles = []*os.File{readPipe}
+// 外带文件句柄创建子进程,传入管道文件的读取端句柄
+
+func NewPipe()(*os.File, *os.File, error){
+	read, write,err := os.Pipe()
+	if err != nil {
+		return nil, nil, err
+	}
+	return read, write, nil
+}
+```
+
+
+
+补充
+
+```bash
+ll /proc/self/fd
+lrwx------ 1 root root 64 Feb  8 20:05 0 -> /dev/pts/0
+lrwx------ 1 root root 64 Feb  8 20:05 1 -> /dev/pts/0
+lrwx------ 1 root root 64 Feb  8 20:05 2 -> /dev/pts/0
+lr-x------ 1 root root 64 Feb  8 20:05 3 -> /proc/9196/fd/
+                                         # 传给了进程
+```
+
+
+
+###### container/init.go
+
+RunContainerInitProcess()   逻辑改变，函数重写
+
+```go
+cmdArray := readUserCommand()
+exec.LookPath(cmdArray[0])   //识别环境变量
+
+syscall.Exec(path, cmdArray[0:], os.Environ()); // 调用自己
+```
+
+
+
+readUserCommand()	新增 read 函数
+
+```go
+func readUserCommand() []string {
+	pipe := os.NewFile(uintptr(3), "pipe") // 第四描述符
+	msg, err := ioutil.ReadAll(pipe) // 自己维护等待
+	if err != nil {
+		logrus.Errorf("init read pipe error %v", err)
+		return nil
+	}
+	msgStr := string(msg)
+	return strings.Split(msgStr, " ")
+}
+// 获取并分割
+
+```
+
+
+
+###### run.go改
+
+run 函数 参数个数都变了：
+
+- ​    tty
+- ​    comArry
+- ​    res
+
+  进程启动完再发送命令
+
+
+
+  **sendInitCommand( )**
+    发送命令的函数
+
+```go
+parent, writePipe := container.NewParentProcess(tty) //?
+sendInitCommand(comArry, writePipe)
+
+func sendInitCommand(comArray []string, writePipe *os.File) {
+	command := strings.Join(comArray, " ")
+	log.Infof("command all is %s", command)
+	writePipe.WriteString(command)
+	writePipe.Close()
+}
+```
+
+
+
+###### 测试
+
+```bash
+./3_container  run -ti ls -l
+./3_container  run -ti bash
+ ps -ef
+```
+
+
 
 ######       流程
 
@@ -458,6 +548,8 @@ go test -v
 ​        向writePipe 写与运行命令
 ​        写入成功
 ​        执行命令
+
+
 
 ####   小结
 
