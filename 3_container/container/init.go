@@ -20,6 +20,9 @@ func RunContainerInitProcess() error {
 		return fmt.Errorf("Run container get user command error, cmdArray is nil")
 	}
 
+	defaultMountFlags := syscall.MS_NOEXEC | syscall.MS_NOSUID | syscall.MS_NODEV
+	syscall.Mount("proc", "/proc", "proc", uintptr(defaultMountFlags), "")
+
 	//setUpMount()
 	path, err := exec.LookPath(cmdArray[0])
 	if err != nil {
@@ -28,8 +31,7 @@ func RunContainerInitProcess() error {
 	}
 	logrus.Info("Find path %s", path)
 
-	//defaultMountFlags := syscall.MS_NOEXEC | syscall.MS_NOSUID | syscall.MS_NODEV
-	//syscall.Mount("proc", "/proc", "proc", uintptr(defaultMountFlags), "")
+
 	//argv :=[]string{command}
 
 	//if err := syscall.Exec(command, argv, os.Environ()); err != nil{

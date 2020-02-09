@@ -2,7 +2,6 @@ package main
 
 import (
 	log "github.com/Sirupsen/logrus"
-	"github.com/lluxury/golang_together_exercise/3_container/cgroups"
 	"github.com/lluxury/golang_together_exercise/3_container/cgroups/subsystems"
 	"strings"
 
@@ -25,14 +24,14 @@ func Run(tty bool, comArry []string, res *subsystems.ResourceConfig)  {
 		log.Error(err)
 	}
 
-	cgroupManager := cgroups.NewCgroupManager("mydocker-cgroup")
-	defer cgroupManager.Destroy()
-	cgroupManager.Set(res)
-	cgroupManager.Apply(parent.Process.Pid)
+	//cgroupManager := cgroups.NewCgroupManager("mydocker-cgroup")
+	//defer cgroupManager.Destroy()
+	//cgroupManager.Set(res)
+	//cgroupManager.Apply(parent.Process.Pid)
 
 	sendInitCommand(comArry, writePipe)
 	parent.Wait()
-	//os.Exit(-1)
+	os.Exit(0)
 }
 
 func sendInitCommand(comArray []string, writePipe *os.File) {

@@ -35,6 +35,7 @@ func NewParentProcess(tty bool) (*exec.Cmd, *os.File){
 	cmd.ExtraFiles = []*os.File{readPipe}
 	// return cmd
 	return cmd, writePipe
+
 }
 
 func NewPipe()(*os.File, *os.File, error){
