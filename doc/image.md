@@ -7,10 +7,27 @@
 ​    原因
 ​      可以看到父进程挂载点
 ​    busybox
-​      获取rootfs
+
+#####       获取rootfs
+
 ​      docker export打包
 ​      tar 解压
-​    pivot_root
+
+```bash
+docker pull busybox
+docker run -d busybox top -b
+docker export -o busybox.tar 31971ffadca9
+mkdir busybox
+tar xvf busybox.tar -C busybox/
+
+```
+
+运行镜像，导出，解压为footfs    
+
+
+
+##### pivot_root
+
 ​      原理
 ​        改变当前的root文件系统
 ​        从新挂载
