@@ -32,6 +32,7 @@ func NewParentProcess(tty bool) (*exec.Cmd, *os.File) {
 	}
 	cmd.ExtraFiles = []*os.File{readPipe}
 	// return cmd
+	cmd.Dir = "/root/busybox"
 	return cmd, writePipe
 
 }
