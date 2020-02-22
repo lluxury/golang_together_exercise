@@ -32,7 +32,31 @@ tar xvf busybox.tar -C busybox/
 ​        改变当前的root文件系统
 ​        从新挂载
 ​        tmpfs 内存文件系统
-​      代码
+​     
+
+ 代码
+
+###### init.go
+
+  setUpMount()
+  pivotRoot()
+
+  bind mount 成不同系统
+  建目录 .pivot_root
+  PivotRoot 移走root
+  修改当前目录到根目录
+  卸载老root
+  删除临时挂载点
+
+
+
+###### container_process.go
+
+```go
+  cmd.Dir = "/root/busybox"
+```
+
+
 
 ####   使用AUFS包装busybox
 
@@ -40,7 +64,25 @@ tar xvf busybox.tar -C busybox/
 ​      虽然换目录挂载了，还是会影响到宿主机里的现实目录
 ​      需要容器和镜像隔离
 ​      上一章的 AUFS基础内容
+
 ​    代码
+
+###### container_process.go
+
+  NewWorkSpace()
+  CreateReadOnlyLayer()
+  CreateWriteLayer()
+  CreateMountPoint()
+  更新NewParentProcess()
+
+  DeleteWorkSpace()
+  DeleteMountPoint()
+  DeleteWriteLayer()
+
+  PathExists()
+
+挂载时常量变成了函数，卸载时 在 run.go 里面加一次调用
+
 ​    流程
 ​      创建工作目录
 ​      解压镜像包

@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 	"strings"
 	"syscall"
-
 	"github.com/Sirupsen/logrus"
 )
 
@@ -79,7 +78,7 @@ func pivotRoot(root string) error {
 		return err
 	}
 
-	if err :=syscall.PivotRoot(root, pivotDir); err != nil {
+	if err := syscall.PivotRoot(root, pivotDir); err != nil {
 		return fmt.Errorf("pivot_root %v", err)
 	}
 

@@ -11,7 +11,8 @@ import (
 )
 
 //func Run(tty bool, command string) {
-func Run(tty bool, comArry []string, res *subsystems.ResourceConfig) {
+
+func Run(tty bool, comArray []string, res *subsystems.ResourceConfig) {
 
 	//parent := container.NewParentProcess(tty,command)
 	parent, writePipe := container.NewParentProcess(tty)
@@ -29,8 +30,12 @@ func Run(tty bool, comArry []string, res *subsystems.ResourceConfig) {
 	//cgroupManager.Set(res)
 	//cgroupManager.Apply(parent.Process.Pid)
 
-	sendInitCommand(comArry, writePipe)
+	sendInitCommand(comArray, writePipe)
 	parent.Wait()
+
+	mntURL := "/root/mnt/"
+	rootURL := "/root/"
+	container.DeleteWorkSpace(rootURL,mntURL)
 	os.Exit(0)
 }
 
