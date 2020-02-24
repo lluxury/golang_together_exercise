@@ -12,6 +12,7 @@
 
 ​      docker export打包
 ​      tar 解压
+​      注意，**导出**的tar包和自己打的有点不同，建议导出
 
 ```bash
 docker pull busybox
@@ -94,7 +95,8 @@ tar xvf busybox.tar -C busybox/
 
 ####   实现volume数据卷
 
-​    原因
+原因
+
 ​      容器退出，可写层内容删除？
 ​      原理
 ​        启动容器
@@ -114,7 +116,25 @@ tar xvf busybox.tar -C busybox/
 ​          建宿主机目录 /root/${parentUrl}
 ​          容器挂载点 /root/mnt/${containerUrl}
 ​          挂载
+
 ​    代码
+
+###### main_command.go
+
+  更新runCommand
+
+###### run.go
+
+  更新Run()
+
+###### container_process.go
+
+  更新NewWorkSpace()
+  volumeUrlExtract()
+  MountVolume()
+  更新DeleteWorkSpace()
+  DeleteMountPointWithVolume()
+
 ​    流程
 ​      解析 Volume 参数，创建工作目录
 ​      抽取 宿主机 与 容器

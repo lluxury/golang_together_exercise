@@ -2,7 +2,6 @@ package main
 
 import (
 	log "github.com/Sirupsen/logrus"
-	"github.com/lluxury/golang_together_exercise/4_image/cgroups/subsystems"
 	"strings"
 
 	// "github.com/xianlubird/mydocker/container"
@@ -12,10 +11,11 @@ import (
 
 //func Run(tty bool, command string) {
 
-func Run(tty bool, comArray []string, res *subsystems.ResourceConfig) {
+//func Run(tty bool, comArray []string, res *subsystems.ResourceConfig) {
+func Run(tty bool, comArray []string, volume string) {
 
-	//parent := container.NewParentProcess(tty,command)
-	parent, writePipe := container.NewParentProcess(tty)
+	//parent, writePipe := container.NewParentProcess(tty)
+	parent, writePipe := container.NewParentProcess(tty,volume)
 	if parent == nil {
 		log.Errorf("New parent precess error")
 		return
@@ -25,17 +25,14 @@ func Run(tty bool, comArray []string, res *subsystems.ResourceConfig) {
 		log.Error(err)
 	}
 
-	//cgroupManager := cgroups.NewCgroupManager("mydocker-cgroup")
-	//defer cgroupManager.Destroy()
-	//cgroupManager.Set(res)
-	//cgroupManager.Apply(parent.Process.Pid)
 
 	sendInitCommand(comArray, writePipe)
 	parent.Wait()
 
 	mntURL := "/root/mnt/"
 	rootURL := "/root/"
-	container.DeleteWorkSpace(rootURL,mntURL)
+	//container.DeleteWorkSpace(rootURL,mntURL)
+	container.DeleteWorkSpace(rootURL,mntURL,volume)
 	os.Exit(0)
 }
 

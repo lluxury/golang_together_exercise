@@ -18,21 +18,24 @@ var runCommand = cli.Command{
 		if len(context.Args()) < 1 {
 			return fmt.Errorf("Missing container command")
 		}
+
 		var cmdArray []string
 		for _, arg := range context.Args() {
 			cmdArray = append(cmdArray, arg)
 		}
-		//cmd := context.Args().Get(0)
+
 		tty := context.Bool("ti")
-		resConf := &subsystems.ResourceConfig{
-			//MemoryLimit: "m", 重要 bug，直接导致功能失效
+		volume := context.String("v")
 
-			MemoryLimit: context.String("m"),
-			CpuShare:    context.String("cpuset"),
-			CpuSet:      context.String("cpushare"),
-		}
+		//resConf := &subsystems.ResourceConfig{
+		//
+		//	MemoryLimit: context.String("m"),
+		//	CpuShare:    context.String("cpuset"),
+		//	CpuSet:      context.String("cpushare"),
+		//}
 
-		Run(tty, cmdArray, resConf)
+		//Run(tty, cmdArray, resConf)
+		Run(tty, cmdArray, volume)
 		return nil
 	},
 	Flags: []cli.Flag{
@@ -40,17 +43,21 @@ var runCommand = cli.Command{
 			Name:  "ti",
 			Usage: "enable tty",
 		},
+		//cli.StringFlag{
+		//	Name:  "m",
+		//	Usage: "memory limit",
+		//},
+		//cli.StringFlag{
+		//	Name:  "cpushare",
+		//	Usage: "cpushare limit",
+		//},
+		//cli.StringFlag{
+		//	Name:  "cpuset",
+		//	Usage: "cpuset limit",
+		//},
 		cli.StringFlag{
-			Name:  "m",
-			Usage: "memory limit",
-		},
-		cli.StringFlag{
-			Name:  "cpushare",
-			Usage: "cpushare limit",
-		},
-		cli.StringFlag{
-			Name:  "cpuset",
-			Usage: "cpuset limit",
+			Name:  "v",
+			Usage: "volume",
 		},
 	},
 }
